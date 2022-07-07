@@ -56,7 +56,7 @@ impl TypingTest {
         todo!()
     }
 
-    fn move_down(&mut self) {
+    fn get_next_line(&mut self) {
         self.previous_lines.push(self.line);
         self.line = self.next_line;
         self.next_line = Line::new();
@@ -88,7 +88,7 @@ impl TypingTest {
                     }
                     KeyCode::Char(ch) => {
                         if ch == ' ' && self.line.done() {
-                            self.move_down();
+                            self.get_next_line();
                         }
                         self.line.add_char(ch);
                     }
@@ -99,7 +99,7 @@ impl TypingTest {
     }
 
     fn run(&mut self) -> crossterm::Result<()> {
-        self.redraw()?
+        self.redraw()?;
         while self.running {
             if self.kbin()? {
                 self.redraw()?;

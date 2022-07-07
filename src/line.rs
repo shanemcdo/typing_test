@@ -36,11 +36,8 @@ fn next_word() -> &str {
 }
 
 fn next_line() -> &str {
-    let mut next_words = vec![];
-    for _ in 0..10 {
-        next_words.push(next_word());
-    }
-    next_words.into_iter()
+    std::iter::repeat_with(next_word)
+        .take(10)
         .reduce(|a, b| format!("{} {}", a, b))
         .unwrap_or("")
 }
