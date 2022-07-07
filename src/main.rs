@@ -5,7 +5,7 @@ use crossterm::{
     cursor,
     event::{self, Event, KeyCode},
     queue, terminal,
-    style::{Color, PrintStyledContent, Stylize, Print},
+    style::{Stylize, Print},
 };
 use line::Line;
 use std::io::{self, prelude::*};
