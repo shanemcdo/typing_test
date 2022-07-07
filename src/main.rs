@@ -76,9 +76,12 @@ impl TypingTest {
         queue!(
             self.stdout,
             Print(format!(
-                "words: {}  time: {}s  wpm: {}",
+                "{}: {}  {}: {}s  {}: {}",
+                "Words".red().bold(),
                 wc,
+                "Time".green().bold(),
                 time,
+                "wpm".blue().bold(),
                 wpm
             )),
             cursor::MoveToNextLine(1)

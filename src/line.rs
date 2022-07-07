@@ -57,17 +57,13 @@ impl Line {
 
     /// Returns true if a word has been unfinished
     pub fn backspace(&mut self) -> bool {
+        let mut result = false;
         if self.index > 0 {
-            match self.buffer.pop() {
-                Some(' ') => match self.expected.chars().nth(self.index) {
-                    Some(' ') => { return true }
-                    _ => ()
-                }
-                _ => ()
-            };
+            result = matches!(self.expected.chars().nth(self.index), Some(' '));
+            self.buffer.pop();
             self.index -= 1;
         }
-        false
+        result
     }
 
     /// Returns true if a word has been finshed
