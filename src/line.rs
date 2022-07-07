@@ -55,22 +55,42 @@ impl Line {
         }
     }
 
-    /// Returns true if a word has been unfinished
-    pub fn backspace(&mut self) -> bool {
-        let mut result = false;
+    pub fn word_count(&self) -> u32 {
+        let buffer: Vec<char> = self.buffer.chars().chain([' ']).collect();
+        let expected: Vec<char> = self.expected.chars().collect();
+        let mut word_correct = true;
+        let mut count = 0;
+        for i in 0..buffer.len() {
+            if i >= expected.len() {
+                if word_correct {
+                    count += 1;
+                }
+                break;
+            }
+            if expected[i] == ' ' {
+                if word_correct {
+                    count += 1;
+                }
+                word_correct = true;
+            }
+            if buffer[i] != expected[i] {
+                word_correct = false;
+            } 
+        }
+        count
+    }
+
+    pub fn backspace(&mut self) {
         if self.index > 0 {
-            result = matches!(self.expected.chars().nth(self.index), Some(' '));
             self.buffer.pop();
             self.index -= 1;
         }
-        result
     }
 
     /// Returns true if a word has been finshed
-    pub fn add_char(&mut self, ch: char) -> bool {
+    pub fn add_char(&mut self, ch: char) {
         self.buffer.push(ch);
         self.index += 1;
-        self.expected.chars().nth(self.index).unwrap_or(' ') == ' '
     }
 
     pub fn draw(&self, stdout: &mut io::Stdout) -> crossterm::Result<()> {

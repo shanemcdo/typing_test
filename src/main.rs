@@ -42,7 +42,7 @@ struct TypingTest {
     line: Line,
     next_line: Line,
     test_mode: TestMode,
-    word_count: u32,
+    _word_count: u32,
     instant: Option<Instant>,
 }
 
@@ -62,16 +62,20 @@ impl TypingTest {
             } else {
                 TestMode::WordCount(args.number.unwrap_or(30))
             },
-            word_count: 0,
+            _word_count: 0,
             instant: None,
         }
+    }
+
+    fn word_count(&self) -> u32 {
+        self._word_count + self.line.word_count()
     }
 
     fn draw_score(&mut self) -> crossterm::Result<()> {
         let time = self.instant
             .map(|x| x.elapsed().as_secs_f32())
             .unwrap_or(0f32);
-        let wc = self.word_count;
+        let wc = self.word_count();
         let wpm = wc as f32 / (time / 60f32);
         queue!(
             self.stdout,
@@ -100,6 +104,7 @@ impl TypingTest {
     }
 
     fn get_next_line(&mut self) {
+        self._word_count += self.line.word_count();
         std::mem::swap(&mut self.line, &mut self.next_line);
         self.previous_line = std::mem::take(&mut self.next_line);
     }
@@ -127,9 +132,7 @@ impl TypingTest {
                         self.running = false;
                     }
                     KeyCode::Backspace => {
-                        if self.line.backspace() {
-                            self.word_count -= 1;
-                        }
+                        self.line.backspace();
                         return Ok(true);
                     }
                     KeyCode::Char(ch) => {
@@ -139,8 +142,8 @@ impl TypingTest {
                         }
                         if ch == ' ' && self.line.done() {
                             self.get_next_line();
-                        } else if self.line.add_char(ch) { 
-                            self.word_count += 1;
+                        } else {
+                            self.line.add_char(ch);
                         }
                         return Ok(true);
                     }
@@ -149,7 +152,7 @@ impl TypingTest {
                 _ => {}
             }
         }
-        Ok(false)
+        Ok(true)
     }
 
     fn run(&mut self) -> crossterm::Result<()> {
@@ -161,7 +164,7 @@ impl TypingTest {
             }
             match self.test_mode {
                 TestMode::WordCount(words) => {
-                    if self.word_count >= words {
+                    if self.word_count() >= words {
                         break;
                     }
                 }
@@ -178,8 +181,9 @@ impl TypingTest {
         terminal::disable_raw_mode()?;
         if let Some(instant) = self.instant {
             let elapsed = instant.elapsed().as_secs_f32();
-            println!("You typed {} words {} seconds", self.word_count, elapsed);
-            println!("Thats {} wpm", self.word_count as f32 / (elapsed / 60f32));
+            let wc = self.word_count();
+            println!("You typed {} words {} seconds", wc, elapsed);
+            println!("Thats {} wpm", wc as f32 / (elapsed / 60f32));
         }
         Ok(())
     }
