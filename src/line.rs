@@ -61,16 +61,18 @@ impl Line {
         let buffer: Vec<char> = self.buffer.chars().collect();
         let expected: Vec<char> = self.expected.chars().collect();
         for i in 0..buffer.len().max(expected.len()) {
-            if i >= buffer.len() {
-                queue!(stdout, PrintStyledContent(expected[i].with(UNCOMPLETED)))?;
+            let ch = if i >= buffer.len() {
+                expected[i].with(UNCOMPLETED)
             } else if i >= expected.len() {
-                queue!(stdout, PrintStyledContent(buffer[i].with(ERROR)))?;
+                buffer[i].with(ERROR)
             } else {
-                let actual = buffer[i];
-                let expected = expected[i];
-                let color = if actual == expected { COMPLETED } else { ERROR };
-                queue!(stdout, PrintStyledContent(buffer[i].with(color)))?;
-            }
+                buffer[i].with(if buffer[i] == expected[i] {
+                    COMPLETED
+                } else {
+                    ERROR
+                })
+            };
+            queue!(stdout, PrintStyledContent(ch))?;
         }
         queue!(stdout, cursor::MoveToNextLine(1))
     }
