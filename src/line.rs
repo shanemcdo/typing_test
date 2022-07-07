@@ -4,7 +4,6 @@ use crossterm::{
     cursor,
     style::{
         Color,
-        Print,
         Stylize,
         PrintStyledContent,
     },

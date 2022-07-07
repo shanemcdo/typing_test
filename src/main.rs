@@ -1,7 +1,7 @@
 mod line;
 
 use line::Line;
-use std::io::{self, prelude::*, BufRead};
+use std::io::{self, prelude::*};
 use structopt::StructOpt;
 use std::time::Duration;
 use crossterm::{
@@ -9,12 +9,6 @@ use crossterm::{
     cursor,
     terminal,
     event::{self, Event, KeyCode},
-    style::{
-        Color,
-        Print,
-        Stylize,
-        PrintStyledContent,
-    },
 };
 
 #[derive(Debug, StructOpt)]
