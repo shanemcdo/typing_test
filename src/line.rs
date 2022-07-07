@@ -1,8 +1,6 @@
 use std::io;
 use crossterm::{
     queue,
-    cursor,
-    terminal,
     style::{
         Color,
         Print,
@@ -11,12 +9,8 @@ use crossterm::{
     },
 };
 
-macro_rules! gray {
-    ($x:expr) => (Color::Rgb{r: $x, g: $x, b: $x})
-}
-
-const COMPLETED: Color = gray!(255);
-const UNCOMPLETED: Color = gray!(100);
+const COMPLETED: Color = gray(255);
+const UNCOMPLETED: Color = gray(100);
 const ERROR: Color = Color::Rgb{r: 230, g: 0, b: 0};
 
 const WORDS: &[&str] = &[
@@ -33,9 +27,12 @@ const WORDS: &[&str] = &[
     "boyfriend",
 ];
 
+const fn gray(x: u8) -> Color {
+    Color::Rgb{ r: x, g: x, b: x }
+}
+
 fn next_word() -> &str {
-    // TODO get rand to work
-    WORDS[rand() % WORDS.len()]
+    WORDS[rand::random() % WORDS.len()]
 }
 
 fn next_line() -> &str {
@@ -64,7 +61,7 @@ impl Line {
         }
     }
 
-    pub fn backspace(&mut self) -> bool{
+    pub fn backspace(&mut self) -> bool {
         if self.index > 0 {
             self.index -= 1;
             true
@@ -73,21 +70,27 @@ impl Line {
         }
     }
 
+    pub fn add_char(&mut self, ch: char) {
+        self.buffer.push(ch);
+    }
+
     pub fn draw(&self, stdout: &mut io::Stdout) -> crossterm::Result<()>{
-        for i in 0..self.buffer.len().max(self.expected.len()) {
-            if i > self.buffer.len() {
+        let buffer: Vec<char> = self.buffer.chars.collect();
+        let expected: Vec<char> = self.expected.chars.collect();
+        for i in 0..buffer.len().max(expected.len()) {
+            if i > buffer.len() {
                 queue!(
                     stdout,
-                    PrintStyledContent(self.expected[i].with(UNCOMPLETED)
+                    PrintStyledContent(expected[i].to_string().with(UNCOMPLETED))
                 )?;
-            } else if i > self.expected.len() {
+            } else if i > expected.len() {
                 queue!(
                     stdout,
-                    PrintStyledContent(self.buffer[i].with(ERROR)
+                    PrintStyledContent(buffer[i].to_string().with(ERROR))
                 )?;
             } else {
-                let actual = self.buffer[i];
-                let expected = self.expected[i];
+                let actual = buffer[i];
+                let expected = expected[i];
                 let color = if actual == expected {
                     COMPLETED
                 } else {
@@ -95,7 +98,7 @@ impl Line {
                 };
                 queue!(
                     stdout,
-                    PrintStyledContent(self.buffer[i].with(color))
+                    PrintStyledContent(buffer[i].to_string().with(color))
                 )?;
             }
         }

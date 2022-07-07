@@ -84,10 +84,13 @@ impl TypingTest {
                         self.running = false;
                     }
                     KeyCode::Backspace => {
-                        return todo!();
+                        self.line.backspace();
                     }
                     KeyCode::Char(ch) => {
-                        return todo!();
+                        if ch == ' ' && self.line.done() {
+                            self.move_down();
+                        }
+                        self.line.add_char(ch);
                     }
                 }
             }
@@ -109,6 +112,5 @@ impl TypingTest {
 fn main() -> crossterm::Result<()> {
     terminal::enable_raw_mode()?;
     TypingTest::new().run()?;
-    terminal::disable_raw_mode()?;
-    Ok(())
+    terminal::disable_raw_mode()
 }
