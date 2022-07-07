@@ -5,6 +5,7 @@ use crossterm::{
     cursor,
     event::{self, Event, KeyCode},
     queue, terminal,
+    style::{Color, PrintStyledContent, Stylize, Print},
 };
 use line::Line;
 use std::io::{self, prelude::*};
@@ -66,15 +67,33 @@ impl TypingTest {
         }
     }
 
+    fn draw_score(&mut self) -> crossterm::Result<()> {
+        let time = self.instant
+            .map(|x| x.elapsed().as_secs_f32())
+            .unwrap_or(0f32);
+        let wc = self.word_count;
+        let wpm = wc as f32 / (time / 60f32);
+        queue!(
+            self.stdout,
+            Print(format!(
+                "words: {}  time: {}s  wpm: {}",
+                wc,
+                time,
+                wpm
+            )),
+            cursor::MoveToNextLine(1)
+        )
+    }
+
     fn redraw(&mut self) -> crossterm::Result<()> {
         self.clear()?;
+        self.draw_score()?;
         self.previous_line.draw(&mut self.stdout)?;
         self.line.draw(&mut self.stdout)?;
         self.next_line.draw(&mut self.stdout)?;
         let x = self.line.index as u16;
-        queue!(self.stdout, cursor::MoveTo(x, 1))?;
-        self.stdout.flush()?;
-        Ok(())
+        queue!(self.stdout, cursor::MoveTo(x, 2))?;
+        self.stdout.flush()
     }
 
     fn get_next_line(&mut self) {
@@ -105,7 +124,9 @@ impl TypingTest {
                         self.running = false;
                     }
                     KeyCode::Backspace => {
-                        self.line.backspace();
+                        if self.line.backspace() {
+                            self.word_count -= 1;
+                        }
                         return Ok(true);
                     }
                     KeyCode::Char(ch) => {
@@ -115,10 +136,7 @@ impl TypingTest {
                         }
                         if ch == ' ' && self.line.done() {
                             self.get_next_line();
-                        } else {
-                            self.line.add_char(ch);
-                        }
-                        if ch == ' ' {
+                        } else if self.line.add_char(ch) { 
                             self.word_count += 1;
                         }
                         return Ok(true);

@@ -55,19 +55,26 @@ impl Line {
         }
     }
 
+    /// Returns true if a word has been unfinished
     pub fn backspace(&mut self) -> bool {
         if self.index > 0 {
+            match self.buffer.pop() {
+                Some(' ') => match self.expected.chars().nth(self.index) {
+                    Some(' ') => { return true }
+                    _ => ()
+                }
+                _ => ()
+            };
             self.index -= 1;
-            self.buffer.pop();
-            true
-        } else {
-            false
         }
+        false
     }
 
-    pub fn add_char(&mut self, ch: char) {
+    /// Returns true if a word has been finshed
+    pub fn add_char(&mut self, ch: char) -> bool {
         self.buffer.push(ch);
         self.index += 1;
+        self.expected.chars().nth(self.index).unwrap_or(' ') == ' '
     }
 
     pub fn draw(&self, stdout: &mut io::Stdout) -> crossterm::Result<()> {
