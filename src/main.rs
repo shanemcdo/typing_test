@@ -1,3 +1,6 @@
+mod line;
+
+use line::Line;
 use std::io::{self, prelude::*, BufRead};
 use structopt::StructOpt;
 use std::time::Duration;
@@ -5,7 +8,6 @@ use crossterm::{
     queue,
     cursor,
     terminal,
-    tty::IsTty,
     event::{self, Event, KeyCode},
     style::{
         Color,
@@ -14,42 +16,6 @@ use crossterm::{
         PrintStyledContent,
     },
 };
-
-macro_rules! gray {
-    ($x:expr) => (Color::Rgb{r: $x, g: $x, b: $x})
-}
-
-const COMPLETED: Color = gray!(255);
-const UNCOMPLETED: Color = gray!(100);
-const ERROR: Color = Color::Rgb{r: 230, g: 0, b: 0};
-
-const WORDS: &[&str] = &[
-    "apple",
-    "banana",
-    "names",
-    "know",
-    "computer",
-    "science",
-    "knowledge",
-    "fight",
-    "hug",
-    "love",
-    "boyfriend",
-];
-
-fn next_word() -> &str {
-    WORDS[rand() % WORDS.len()]
-}
-
-fn next_line(word_count: usize) -> &str {
-    let mut next_words = vec![];
-    for _ in 0..word_count {
-        next_words.push(next_word());
-    }
-    next_words.into_iter()
-        .reduce(|a, b| format!("{} {}", a, b))
-        .unwrap_or("")
-}
 
 #[derive(Debug, StructOpt)]
 #[structopt(
@@ -67,10 +33,9 @@ struct TypingTest {
     running: bool,
     stdout: io::Stdout,
     terminal_size: (u16, u16),
-    buffer: String,
-    line: &str,
-    next_line: &str,
-    index: usize,
+    previous_lines: Vec<Line>,
+    line: Line,
+    next_line: Line,
 }
 
 impl TypingTest {
@@ -80,25 +45,21 @@ impl TypingTest {
             running: true,
             stdout: io::Stdout,
             terminal_size,
-            buffer: String,
-            line: next_line(10),
-            next_line: next_line(10),
-            index: 0,
+            previous_lines: vec![],
+            line: Line::new(),
+            next_line: Line::new(),
         }
     }
 
     fn redraw(&mut self) -> crossterm::Result<()> {
         self.clear()?;
-        queue!(
-            self.stdout,
-            "{}\n{}{}",
-            self.line.with(UNCOMPLETED)
-            self.next_line.with(UNCOMPLETED)
-            cursor::MoveTo(
-                self.index,
-                0
-            )
-        )?;
+        todo!()
+    }
+
+    fn move_down(&mut self) {
+        self.previous_lines.push(self.line);
+        self.line = self.next_line;
+        self.next_line = Line::new();
     }
 
     fn clear(&mut self) -> crossterm::Result<()> {
@@ -126,7 +87,6 @@ impl TypingTest {
                         return todo!();
                     }
                     KeyCode::Char(ch) => {
-                        self.buffer.push(ch);
                         return todo!();
                     }
                 }
