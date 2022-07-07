@@ -14,19 +14,7 @@ const COMPLETED: Color = gray(255);
 const UNCOMPLETED: Color = gray(100);
 const ERROR: Color = Color::Rgb{r: 230, g: 0, b: 0};
 
-const WORDS: &[&str] = &[
-    "apple",
-    "banana",
-    "names",
-    "know",
-    "computer",
-    "science",
-    "knowledge",
-    "fight",
-    "hug",
-    "love",
-    "boyfriend",
-];
+const WORDS: &[&str] = include!("words.txt");
 
 const fn gray(x: u8) -> Color {
     Color::Rgb{ r: x, g: x, b: x }
