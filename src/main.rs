@@ -1,5 +1,6 @@
 mod line;
 
+use std::time::Instant;
 use crossterm::{
     cursor,
     event::{self, Event, KeyCode},
@@ -28,13 +29,15 @@ enum TestMode {
 
 struct TypingTest {
     running: bool,
+    started: bool,
     stdout: io::Stdout,
     terminal_size: (u16, u16),
-    previous_lines: Vec<Line>,
+    previous_line: Line,
     line: Line,
     next_line: Line,
     test_mode: TestMode,
     word_count: u32,
+    instant: Instant,
 }
 
 impl TypingTest {
@@ -42,37 +45,35 @@ impl TypingTest {
         let terminal_size = terminal::size().expect("Could not get terminal size");
         Self {
             running: true,
+            started: false,
             stdout: io::stdout(),
             terminal_size,
-            previous_lines: vec![],
+            previous_line: Line::empty(),
             line: Line::new(),
             next_line: Line::new(),
             test_mode: TestMode::WordCount(args.number.unwrap_or(30)),
             word_count: 0,
+            instant: Instant::now(),
         }
     }
 
     fn redraw(&mut self) -> crossterm::Result<()> {
         self.clear()?;
-        for line in &self.previous_lines {
-            line.draw(&mut self.stdout)?;
-        }
+        self.previous_line.draw(&mut self.stdout)?;
         self.line.draw(&mut self.stdout)?;
         self.next_line.draw(&mut self.stdout)?;
         let x = self.line.index as u16;
-        let y = self.previous_lines.len() as u16;
-        queue!(self.stdout, cursor::MoveTo(x, y))?;
+        queue!(self.stdout, cursor::MoveTo(x, 1))?;
         self.stdout.flush()?;
         Ok(())
     }
 
     fn get_next_line(&mut self) {
         std::mem::swap(&mut self.line, &mut self.next_line);
-        let temp = std::mem::take(&mut self.next_line);
-        self.previous_lines.push(temp);
+        self.previous_line = std::mem::take(&mut self.next_line);
     }
 
-    fn clear(&mut self) -> crossterm::Result<()> {)
+    fn clear(&mut self) -> crossterm::Result<()> {
         queue!(
             self.stdout,
             terminal::Clear(terminal::ClearType::All),
@@ -99,6 +100,10 @@ impl TypingTest {
                         return Ok(true);
                     }
                     KeyCode::Char(ch) => {
+                        if !self.started {
+                            self.started = true;
+                            self.instant = Instant::now();
+                        }
                         if ch == ' ' && self.line.done() {
                             self.get_next_line();
                         } else {
@@ -120,7 +125,6 @@ impl TypingTest {
     fn run(&mut self) -> crossterm::Result<()> {
         terminal::enable_raw_mode()?;
         self.redraw()?;
-        let now = std::time::Instant::now();
         while self.running {
             if self.kbin()? {
                 self.redraw()?;
@@ -133,7 +137,7 @@ impl TypingTest {
                 }
             }
         }
-        let elapsed = now.elapsed().as_secs_f32();
+        let elapsed = self.instant.elapsed().as_secs_f32();
         self.clear()?;
         terminal::disable_raw_mode()?;
         println!("You typed {} words {} seconds", self.word_count, elapsed);
