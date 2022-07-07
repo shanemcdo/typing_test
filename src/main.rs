@@ -118,14 +118,12 @@ impl TypingTest {
     }
 
     /// Handle keyboard input
-    /// returns Ok(true) if needs to be reloaded
-    fn kbin(&mut self) -> crossterm::Result<bool> {
+    fn kbin(&mut self) -> crossterm::Result<()> {
         if event::poll(Duration::from_millis(50))? {
             let evnt = event::read()?;
             match evnt {
                 Event::Resize(w, h) => {
                     self.terminal_size = (w, h);
-                    return Ok(true);
                 }
                 Event::Key(key) => match key.code {
                     KeyCode::Esc => {
@@ -133,7 +131,6 @@ impl TypingTest {
                     }
                     KeyCode::Backspace => {
                         self.line.backspace();
-                        return Ok(true);
                     }
                     KeyCode::Char(ch) => {
                         if !self.started {
@@ -145,23 +142,21 @@ impl TypingTest {
                         } else {
                             self.line.add_char(ch);
                         }
-                        return Ok(true);
                     }
                     _ => {}
                 },
                 _ => {}
             }
         }
-        Ok(true)
+        Ok(())
     }
 
     fn run(&mut self) -> crossterm::Result<()> {
         terminal::enable_raw_mode()?;
         self.redraw()?;
         while self.running {
-            if self.kbin()? {
-                self.redraw()?;
-            }
+            self.kbin()?;
+            self.redraw()?;
             match self.test_mode {
                 TestMode::WordCount(words) => {
                     if self.word_count() >= words {
