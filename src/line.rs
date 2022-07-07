@@ -1,6 +1,7 @@
 use std::io;
 use crossterm::{
     queue,
+    cursor,
     style::{
         Color,
         Print,
@@ -31,21 +32,22 @@ const fn gray(x: u8) -> Color {
     Color::Rgb{ r: x, g: x, b: x }
 }
 
-fn next_word() -> &str {
-    WORDS[rand::random() % WORDS.len()]
+fn next_word() -> &'static str {
+    WORDS[rand::random::<usize>() % WORDS.len()]
 }
 
-fn next_line() -> &str {
+fn next_line() -> String{
     std::iter::repeat_with(next_word)
         .take(10)
+        .map(|x| x.to_string())
         .reduce(|a, b| format!("{} {}", a, b))
-        .unwrap_or("")
+        .unwrap_or("".to_string())
 }
 
 #[derive(Clone, Debug)]
 pub struct Line {
     buffer: String,
-    expected: &str,
+    expected: String,
     index: usize,
 }
 
@@ -61,26 +63,30 @@ impl Line {
     pub fn backspace(&mut self) -> bool {
         if self.index > 0 {
             self.index -= 1;
+            self.buffer.pop();
             true
         } else {
             false
         }
+
     }
 
     pub fn add_char(&mut self, ch: char) {
         self.buffer.push(ch);
+        self.index += 1;
     }
 
-    pub fn draw(&self, stdout: &mut io::Stdout) -> crossterm::Result<()>{
-        let buffer: Vec<char> = self.buffer.chars.collect();
-        let expected: Vec<char> = self.expected.chars.collect();
+    pub fn draw(&self, stdout: &mut io::Stdout, y: u16) -> crossterm::Result<()>{
+        queue!(stdout, cursor::MoveTo(0, y))?;
+        let buffer: Vec<char> = self.buffer.chars().collect();
+        let expected: Vec<char> = self.expected.chars().collect();
         for i in 0..buffer.len().max(expected.len()) {
-            if i > buffer.len() {
+            if i >= buffer.len() {
                 queue!(
                     stdout,
                     PrintStyledContent(expected[i].with(UNCOMPLETED))
                 )?;
-            } else if i > expected.len() {
+            } else if i >= expected.len() {
                 queue!(
                     stdout,
                     PrintStyledContent(buffer[i].with(ERROR))
@@ -103,6 +109,6 @@ impl Line {
     }
 
     pub fn done(&self) -> bool {
-        self.index > self.buffer.len()
+        self.index >= self.expected.len()
     }
 }

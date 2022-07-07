@@ -26,11 +26,11 @@ use crossterm::{
 struct Args {
     /// The number of words to type before a test ends
     #[structopt(short, long)]
-    number: Option<i32>,
+    number: Option<u32>,
 }
 
 enum TestMode {
-    WordCount(i32),
+    WordCount(u32),
 }
 
 struct TypingTest {
@@ -49,25 +49,32 @@ impl TypingTest {
         let terminal_size = terminal::size().expect("Could not get terminal size");
         Self {
             running: true,
-            stdout: io::Stdout,
+            stdout: io::stdout(),
             terminal_size,
             previous_lines: vec![],
             line: Line::new(),
             next_line: Line::new(),
             test_mode: TestMode::WordCount(args.number.unwrap_or(30)),
-            0,
+            word_count: 0,
         }
     }
 
     fn redraw(&mut self) -> crossterm::Result<()> {
         self.clear()?;
-        todo!()
+        let mut y = 0;
+        for line in &self.previous_lines {
+            line.draw(&mut self.stdout, y)?;
+            y += 1;
+        }
+        self.line.draw(&mut self.stdout, y)?;
+        y += 1;
+        self.next_line.draw(&mut self.stdout, y)
     }
 
     fn get_next_line(&mut self) {
-        self.previous_lines.push(self.line);
-        self.line = self.next_line;
-        self.next_line = Line::new();
+        std::mem::swap(&mut self.line, &mut self.next_line);
+        let temp = std::mem::replace(&mut self.next_line, Line::new());
+        self.previous_lines.push(temp);
     }
 
     fn clear(&mut self) -> crossterm::Result<()> {
@@ -86,6 +93,7 @@ impl TypingTest {
             match evnt {
                 Event::Resize(w, h) => {
                     self.terminal_size = (w, h);
+                    return Ok(true);
                 }
                 Event::Key(key) => match key.code {
                     KeyCode::Esc => {
@@ -93,6 +101,7 @@ impl TypingTest {
                     }
                     KeyCode::Backspace => {
                         self.line.backspace();
+                        return Ok(true);
                     }
                     KeyCode::Char(ch) => {
                         if ch == ' ' && self.line.done() {
@@ -103,11 +112,14 @@ impl TypingTest {
                         if ch == ' ' {
                             self.word_count += 1;
                         }
+                        return Ok(true);
                     }
+                    _ => {}
                 }
+                _ => {}
             }
         }
-        Ok(true)
+        Ok(false)
     }
 
     fn run(&mut self) -> crossterm::Result<()> {
@@ -117,7 +129,7 @@ impl TypingTest {
                 self.redraw()?;
             }
             match self.test_mode {
-                TestMode::WordCount(words) => if words > self.word_count {
+                TestMode::WordCount(words) => if self.word_count > words {
                     break;
                 }
             }
