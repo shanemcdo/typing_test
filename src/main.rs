@@ -14,7 +14,7 @@ use structopt::StructOpt;
 #[derive(Debug, StructOpt)]
 #[structopt(
     name = "typing_test",
-    usage = "typing_test",
+    usage = "typing_test [flags]",
     about = r#"A program to test your typing speed"#
 )]
 struct Args {
@@ -42,7 +42,7 @@ struct TypingTest {
     next_line: Line,
     test_mode: TestMode,
     word_count: u32,
-    instant: Instant,
+    instant: Option<Instant>,
 }
 
 impl TypingTest {
@@ -62,7 +62,7 @@ impl TypingTest {
                 TestMode::WordCount(args.number.unwrap_or(30))
             },
             word_count: 0,
-            instant: Instant::now(),
+            instant: None,
         }
     }
 
@@ -111,7 +111,7 @@ impl TypingTest {
                     KeyCode::Char(ch) => {
                         if !self.started {
                             self.started = true;
-                            self.instant = Instant::now();
+                            self.instant = Some(Instant::now());
                         }
                         if ch == ' ' && self.line.done() {
                             self.get_next_line();
@@ -145,17 +145,21 @@ impl TypingTest {
                     }
                 }
                 TestMode::TimeLimit(seconds) => {
-                    if self.instant.elapsed().as_secs() >= seconds {
-                        break;
+                    if let Some(instant) = self.instant {
+                        if instant.elapsed().as_secs() >= seconds {
+                            break;
+                        }
                     }
                 }
             }
         }
-        let elapsed = self.instant.elapsed().as_secs_f32();
         self.clear()?;
         terminal::disable_raw_mode()?;
-        println!("You typed {} words {} seconds", self.word_count, elapsed);
-        println!("Thats {} wpm", self.word_count as f32 / (elapsed / 60f32));
+        if let Some(instant) = self.instant {
+            let elapsed = instant.elapsed().as_secs_f32();
+            println!("You typed {} words {} seconds", self.word_count, elapsed);
+            println!("Thats {} wpm", self.word_count as f32 / (elapsed / 60f32));
+        }
         Ok(())
     }
 }
