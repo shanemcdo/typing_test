@@ -33,12 +33,25 @@ pub struct Line {
     pub index: usize,
 }
 
+impl Default for Line {
+    fn default() -> Self {
+        Line::new()
+    }
+}
+
 impl Line {
     pub fn new() -> Self {
         Self {
             buffer: String::new(),
             expected: next_line(),
             index: 0,
+        }
+    }
+
+    pub fn empty() -> Self {
+        Self {
+            expected: String::new(),
+            ..Self::new()
         }
     }
 

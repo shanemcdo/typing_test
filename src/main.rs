@@ -68,11 +68,11 @@ impl TypingTest {
 
     fn get_next_line(&mut self) {
         std::mem::swap(&mut self.line, &mut self.next_line);
-        let temp = std::mem::replace(&mut self.next_line, Line::new());
+        let temp = std::mem::take(&mut self.next_line);
         self.previous_lines.push(temp);
     }
 
-    fn clear(&mut self) -> crossterm::Result<()> {
+    fn clear(&mut self) -> crossterm::Result<()> {)
         queue!(
             self.stdout,
             terminal::Clear(terminal::ClearType::All),
