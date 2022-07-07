@@ -1,15 +1,14 @@
 mod line;
 
+use crossterm::{
+    cursor,
+    event::{self, Event, KeyCode},
+    queue, terminal,
+};
 use line::Line;
 use std::io::{self, prelude::*};
-use structopt::StructOpt;
 use std::time::Duration;
-use crossterm::{
-    queue,
-    cursor,
-    terminal,
-    event::{self, Event, KeyCode},
-};
+use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
 #[structopt(
@@ -62,10 +61,7 @@ impl TypingTest {
         self.next_line.draw(&mut self.stdout)?;
         let x = self.line.index as u16;
         let y = self.previous_lines.len() as u16;
-        queue!(
-            self.stdout,
-            cursor::MoveTo(x, y)
-        )?;
+        queue!(self.stdout, cursor::MoveTo(x, y))?;
         self.stdout.flush()?;
         Ok(())
     }
@@ -105,7 +101,7 @@ impl TypingTest {
                     KeyCode::Char(ch) => {
                         if ch == ' ' && self.line.done() {
                             self.get_next_line();
-                        } else { 
+                        } else {
                             self.line.add_char(ch);
                         }
                         if ch == ' ' {
@@ -114,7 +110,7 @@ impl TypingTest {
                         return Ok(true);
                     }
                     _ => {}
-                }
+                },
                 _ => {}
             }
         }
@@ -130,8 +126,10 @@ impl TypingTest {
                 self.redraw()?;
             }
             match self.test_mode {
-                TestMode::WordCount(words) => if self.word_count >= words {
-                    break;
+                TestMode::WordCount(words) => {
+                    if self.word_count >= words {
+                        break;
+                    }
                 }
             }
         }

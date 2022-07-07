@@ -1,29 +1,24 @@
-use std::io;
 use crossterm::{
-    queue,
-    cursor,
-    style::{
-        Color,
-        Stylize,
-        PrintStyledContent,
-    },
+    cursor, queue,
+    style::{Color, PrintStyledContent, Stylize},
 };
+use std::io;
 
 const COMPLETED: Color = gray(255);
 const UNCOMPLETED: Color = gray(100);
-const ERROR: Color = Color::Rgb{r: 230, g: 0, b: 0};
+const ERROR: Color = Color::Rgb { r: 230, g: 0, b: 0 };
 
 const WORDS: &[&str] = include!("words.txt");
 
 const fn gray(x: u8) -> Color {
-    Color::Rgb{ r: x, g: x, b: x }
+    Color::Rgb { r: x, g: x, b: x }
 }
 
 fn next_word() -> &'static str {
     WORDS[rand::random::<usize>() % WORDS.len()]
 }
 
-fn next_line() -> String{
+fn next_line() -> String {
     std::iter::repeat_with(next_word)
         .take(10)
         .map(|x| x.to_string())
@@ -55,7 +50,6 @@ impl Line {
         } else {
             false
         }
-
     }
 
     pub fn add_char(&mut self, ch: char) {
@@ -63,32 +57,19 @@ impl Line {
         self.index += 1;
     }
 
-    pub fn draw(&self, stdout: &mut io::Stdout) -> crossterm::Result<()>{
+    pub fn draw(&self, stdout: &mut io::Stdout) -> crossterm::Result<()> {
         let buffer: Vec<char> = self.buffer.chars().collect();
         let expected: Vec<char> = self.expected.chars().collect();
         for i in 0..buffer.len().max(expected.len()) {
             if i >= buffer.len() {
-                queue!(
-                    stdout,
-                    PrintStyledContent(expected[i].with(UNCOMPLETED))
-                )?;
+                queue!(stdout, PrintStyledContent(expected[i].with(UNCOMPLETED)))?;
             } else if i >= expected.len() {
-                queue!(
-                    stdout,
-                    PrintStyledContent(buffer[i].with(ERROR))
-                )?;
+                queue!(stdout, PrintStyledContent(buffer[i].with(ERROR)))?;
             } else {
                 let actual = buffer[i];
                 let expected = expected[i];
-                let color = if actual == expected {
-                    COMPLETED
-                } else {
-                    ERROR
-                };
-                queue!(
-                    stdout,
-                    PrintStyledContent(buffer[i].with(color))
-                )?;
+                let color = if actual == expected { COMPLETED } else { ERROR };
+                queue!(stdout, PrintStyledContent(buffer[i].with(color)))?;
             }
         }
         queue!(stdout, cursor::MoveToNextLine(1))
