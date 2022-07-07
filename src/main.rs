@@ -70,9 +70,10 @@ impl TypingTest {
         let y = self.previous_lines.len() as u16;
         queue!(
             self.stdout,
-            cursor::MoveTo(x, y),
-            Print("TEST!")
-        )
+            cursor::MoveTo(x, y)
+        )?;
+        self.stdout.flush()?;
+        Ok(())
     }
 
     fn get_next_line(&mut self) {
@@ -127,24 +128,29 @@ impl TypingTest {
     }
 
     fn run(&mut self) -> crossterm::Result<()> {
+        terminal::enable_raw_mode()?;
         self.redraw()?;
+        let now = std::time::Instant::now();
         while self.running {
             if self.kbin()? {
                 self.redraw()?;
             }
             match self.test_mode {
-                TestMode::WordCount(words) => if self.word_count > words {
+                TestMode::WordCount(words) => if self.word_count >= words {
                     break;
                 }
             }
         }
-        self.clear()
+        let elapsed = now.elapsed().as_secs_f32();
+        self.clear()?;
+        terminal::disable_raw_mode()?;
+        println!("You typed {} words {} seconds", self.word_count, elapsed);
+        println!("Thats {} wpm", self.word_count as f32 / (elapsed / 60f32));
+        Ok(())
     }
 }
 
 fn main() -> crossterm::Result<()> {
     let args = Args::from_args();
-    terminal::enable_raw_mode()?;
-    TypingTest::new(args).run()?;
-    terminal::disable_raw_mode()
+    TypingTest::new(args).run()
 }
