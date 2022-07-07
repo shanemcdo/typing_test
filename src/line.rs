@@ -78,12 +78,12 @@ impl Line {
             if i > buffer.len() {
                 queue!(
                     stdout,
-                    PrintStyledContent(expected[i].to_string().with(UNCOMPLETED))
+                    PrintStyledContent(expected[i].with(UNCOMPLETED))
                 )?;
             } else if i > expected.len() {
                 queue!(
                     stdout,
-                    PrintStyledContent(buffer[i].to_string().with(ERROR))
+                    PrintStyledContent(buffer[i].with(ERROR))
                 )?;
             } else {
                 let actual = buffer[i];
@@ -95,7 +95,7 @@ impl Line {
                 };
                 queue!(
                     stdout,
-                    PrintStyledContent(buffer[i].to_string().with(color))
+                    PrintStyledContent(buffer[i].with(color))
                 )?;
             }
         }

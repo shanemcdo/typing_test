@@ -21,12 +21,16 @@ use crossterm::{
 #[structopt(
     name = "typing_test",
     usage = "typing_test",
-    about = r#"A typing test based on rust"#
+    about = r#"A program to test your typing speed"#
 )]
 struct Args {
-    // /// Directly add an item to the todo list
-    // #[structopt(short, long)]
-    // add: Option<String>,
+    /// The number of words to type before a test ends
+    #[structopt(short, long)]
+    number: Option<i32>,
+}
+
+enum TestMode {
+    WordCount(i32),
 }
 
 struct TypingTest {
@@ -36,10 +40,12 @@ struct TypingTest {
     previous_lines: Vec<Line>,
     line: Line,
     next_line: Line,
+    test_mode: TestMode,
+    word_count: u32,
 }
 
 impl TypingTest {
-    fn new() -> Self {
+    fn new(args: Args) -> Self {
         let terminal_size = terminal::size().expect("Could not get terminal size");
         Self {
             running: true,
@@ -48,6 +54,8 @@ impl TypingTest {
             previous_lines: vec![],
             line: Line::new(),
             next_line: Line::new(),
+            test_mode: TestMode::WordCount(args.number.unwrap_or(30)),
+            0,
         }
     }
 
@@ -89,8 +97,12 @@ impl TypingTest {
                     KeyCode::Char(ch) => {
                         if ch == ' ' && self.line.done() {
                             self.get_next_line();
+                        } else { 
+                            self.line.add_char(ch);
                         }
-                        self.line.add_char(ch);
+                        if ch == ' ' {
+                            self.word_count += 1;
+                        }
                     }
                 }
             }
@@ -104,13 +116,19 @@ impl TypingTest {
             if self.kbin()? {
                 self.redraw()?;
             }
+            match self.test_mode {
+                TestMode::WordCount(words) => if words > self.word_count {
+                    break;
+                }
+            }
         }
         self.clear()
     }
 }
 
 fn main() -> crossterm::Result<()> {
+    let args = Args::from_args();
     terminal::enable_raw_mode()?;
-    TypingTest::new().run()?;
+    TypingTest::new(args).run()?;
     terminal::disable_raw_mode()
 }
