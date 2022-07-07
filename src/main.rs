@@ -61,14 +61,18 @@ impl TypingTest {
 
     fn redraw(&mut self) -> crossterm::Result<()> {
         self.clear()?;
-        let mut y = 0;
         for line in &self.previous_lines {
-            line.draw(&mut self.stdout, y)?;
-            y += 1;
+            line.draw(&mut self.stdout)?;
         }
-        self.line.draw(&mut self.stdout, y)?;
-        y += 1;
-        self.next_line.draw(&mut self.stdout, y)
+        self.line.draw(&mut self.stdout)?;
+        self.next_line.draw(&mut self.stdout)?;
+        let x = self.line.index as u16;
+        let y = self.previous_lines.len() as u16;
+        queue!(
+            self.stdout,
+            cursor::MoveTo(x, y),
+            Print("TEST!")
+        )
     }
 
     fn get_next_line(&mut self) {

@@ -48,7 +48,7 @@ fn next_line() -> String{
 pub struct Line {
     buffer: String,
     expected: String,
-    index: usize,
+    pub index: usize,
 }
 
 impl Line {
@@ -76,8 +76,7 @@ impl Line {
         self.index += 1;
     }
 
-    pub fn draw(&self, stdout: &mut io::Stdout, y: u16) -> crossterm::Result<()>{
-        queue!(stdout, cursor::MoveTo(0, y))?;
+    pub fn draw(&self, stdout: &mut io::Stdout) -> crossterm::Result<()>{
         let buffer: Vec<char> = self.buffer.chars().collect();
         let expected: Vec<char> = self.expected.chars().collect();
         for i in 0..buffer.len().max(expected.len()) {
@@ -105,7 +104,7 @@ impl Line {
                 )?;
             }
         }
-        Ok(())
+        queue!(stdout, cursor::MoveToNextLine(1))
     }
 
     pub fn done(&self) -> bool {
