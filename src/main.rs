@@ -21,10 +21,15 @@ struct Args {
     /// The number of words to type before a test ends
     #[structopt(short, long)]
     number: Option<u32>,
+    
+    /// How long the test should run in seconds
+    #[structopt(short, long)]
+    time: Option<u64>,
 }
 
 enum TestMode {
     WordCount(u32),
+    TimeLimit(u64)
 }
 
 struct TypingTest {
@@ -51,7 +56,11 @@ impl TypingTest {
             previous_line: Line::empty(),
             line: Line::new(),
             next_line: Line::new(),
-            test_mode: TestMode::WordCount(args.number.unwrap_or(30)),
+            test_mode: if let Some(seconds) = args.time {
+                TestMode::TimeLimit(seconds)
+            } else {
+                TestMode::WordCount(args.number.unwrap_or(30))
+            },
             word_count: 0,
             instant: Instant::now(),
         }
@@ -132,6 +141,11 @@ impl TypingTest {
             match self.test_mode {
                 TestMode::WordCount(words) => {
                     if self.word_count >= words {
+                        break;
+                    }
+                }
+                TestMode::TimeLimit(seconds) => {
+                    if self.instant.elapsed().as_secs() >= seconds {
                         break;
                     }
                 }
