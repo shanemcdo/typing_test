@@ -857,7 +857,7 @@
 "duty",
 "effort",
 "either",
-"English",
+"english",
 "equal",
 "event",
 "exact",
