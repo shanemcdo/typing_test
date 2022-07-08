@@ -33,6 +33,15 @@ enum TestMode {
     TimeLimit(u64)
 }
 
+impl std::fmt::Display for TestMode {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
+        match self {
+            TestMode::WordCount(wc) => write!(formatter, "{} words", wc),
+            TestMode::TimeLimit(seconds) => write!(formatter, "{} seconds", seconds)
+        }
+    }
+}
+
 struct TypingTest {
     running: bool,
     started: bool,
@@ -77,16 +86,19 @@ impl TypingTest {
             .unwrap_or(0f32);
         let wc = self.word_count();
         let wpm = wc as f32 / (time / 60f32);
+        let mode = &self.test_mode;
         queue!(
             self.stdout,
             Print(format!(
-                "{}: {}  {}: {}s  {}: {}",
+                "{}: {}  {}: {}s  {}: {}  {}: {}",
                 "Words".red().bold(),
                 wc,
                 "Time".green().bold(),
                 time,
                 "wpm".blue().bold(),
-                wpm
+                wpm,
+                "Mode".yellow().bold(),
+                mode
             )),
             cursor::MoveToNextLine(1)
         )
