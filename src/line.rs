@@ -75,7 +75,7 @@ impl Line {
             }
             if buffer[i] != expected[i] {
                 word_correct = false;
-            } 
+            }
         }
         count
     }

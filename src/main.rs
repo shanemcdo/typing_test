@@ -1,15 +1,16 @@
 mod line;
 
-use std::time::Instant;
 use crossterm::{
     cursor,
     event::{self, Event, KeyCode},
-    queue, terminal,
-    style::{Stylize, Print},
+    queue,
+    style::{Print, Stylize},
+    terminal,
 };
 use line::Line;
 use std::io::{self, prelude::*};
 use std::time::Duration;
+use std::time::Instant;
 use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
@@ -28,7 +29,7 @@ struct Args {
     /// The number of words to type before a test ends
     #[structopt(short, long)]
     number: Option<u32>,
-    
+
     /// How long the test should run in seconds
     #[structopt(short, long)]
     time: Option<u64>,
@@ -36,14 +37,14 @@ struct Args {
 
 enum TestMode {
     WordCount(u32),
-    TimeLimit(u64)
+    TimeLimit(u64),
 }
 
 impl std::fmt::Display for TestMode {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
         match self {
             TestMode::WordCount(wc) => write!(formatter, "{} words", wc),
-            TestMode::TimeLimit(seconds) => write!(formatter, "{} seconds", seconds)
+            TestMode::TimeLimit(seconds) => write!(formatter, "{} seconds", seconds),
         }
     }
 }
@@ -87,7 +88,8 @@ impl TypingTest {
     }
 
     fn draw_score(&mut self) -> crossterm::Result<()> {
-        let time = self.instant
+        let time = self
+            .instant
             .map(|x| x.elapsed().as_secs_f32())
             .unwrap_or(0f32);
         let wc = self.word_count();
