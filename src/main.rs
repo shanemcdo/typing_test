@@ -16,7 +16,13 @@ use structopt::StructOpt;
 #[structopt(
     name = "typing_test",
     usage = "typing_test [flags]",
-    about = r#"A program to test your typing speed"#
+    about = r#"A program to test your typing speed
+  Controls:
+    Esc - Exit test
+    Tab - Restart test
+    Letters - Enter input into the test
+    Backspace - Undo input from the test
+"#
 )]
 struct Args {
     /// The number of words to type before a test ends
@@ -144,6 +150,9 @@ impl TypingTest {
                     KeyCode::Backspace => {
                         self.line.backspace();
                     }
+                    KeyCode::Tab => {
+                        self.reset();
+                    }
                     KeyCode::Char(ch) => {
                         if !self.started {
                             self.started = true;
@@ -161,6 +170,15 @@ impl TypingTest {
             }
         }
         Ok(())
+    }
+
+    fn reset(&mut self) {
+        self.started = false;
+        self.previous_line = Line::empty();
+        self.line = Line::new();
+        self.next_line = Line::new();
+        self._word_count = 0;
+        self.instant = None;
     }
 
     fn run(&mut self) -> crossterm::Result<()> {
