@@ -147,12 +147,8 @@ impl TypingTest {
                     KeyCode::Esc => {
                         self.running = false;
                     }
-                    KeyCode::Backspace => {
-                        self.line.backspace();
-                    }
-                    KeyCode::Tab => {
-                        self.reset();
-                    }
+                    KeyCode::Backspace => self.line.backspace(),
+                    KeyCode::Tab => self.reset(),
                     KeyCode::Char(ch) => {
                         if !self.started {
                             self.started = true;
