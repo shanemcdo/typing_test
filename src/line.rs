@@ -103,11 +103,16 @@ impl Line {
             } else if i >= expected.len() {
                 buffer[i].with(ERROR)
             } else {
-                buffer[i].with(if buffer[i] == expected[i] {
+                let color = if buffer[i] == expected[i] {
                     COMPLETED
                 } else {
                     ERROR
-                })
+                };
+                if buffer[i] == ' ' {
+                    buffer[i].on(color)
+                } else {
+                    buffer[i].with(color)
+                }
             };
             queue!(stdout, PrintStyledContent(ch))?;
         }
