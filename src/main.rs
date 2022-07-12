@@ -54,7 +54,6 @@ struct TypingTest {
     started: bool,
     show_final_score: bool,
     stdout: io::Stdout,
-    terminal_size: (u16, u16),
     previous_line: Line,
     line: Line,
     next_line: Line,
@@ -65,13 +64,11 @@ struct TypingTest {
 
 impl TypingTest {
     fn new(args: Args) -> Self {
-        let terminal_size = terminal::size().expect("Could not get terminal size");
         Self {
             running: true,
             started: false,
             show_final_score: true,
             stdout: io::stdout(),
-            terminal_size,
             previous_line: Line::empty(),
             line: Line::new(),
             next_line: Line::new(),
@@ -144,10 +141,6 @@ impl TypingTest {
         if event::poll(Duration::from_millis(50))? {
             let evnt = event::read()?;
             match evnt {
-                Event::Resize(w, h) => {
-                    // TODO: either do something with this or remove terminal_size field
-                    self.terminal_size = (w, h);
-                }
                 Event::Key(key) => match key.code {
                     KeyCode::Esc => self.quit(),
                     KeyCode::Backspace => self.line.backspace(),
