@@ -7,6 +7,7 @@ use std::io;
 const COMPLETED: Color = gray(255);
 const UNCOMPLETED: Color = gray(100);
 const ERROR: Color = Color::Rgb { r: 230, g: 0, b: 0 };
+const LINE_LEN: usize = 10;
 
 const WORDS: &[&str] = include!("words.txt");
 
@@ -20,7 +21,7 @@ fn next_word() -> &'static str {
 
 fn next_line() -> String {
     std::iter::repeat_with(next_word)
-        .take(10)
+        .take(LINE_LEN)
         .map(|x| x.to_string())
         .reduce(|a, b| format!("{} {}", a, b))
         .unwrap_or_default()
