@@ -139,9 +139,8 @@ impl TypingTest {
     /// Handle keyboard input
     fn kbin(&mut self) -> crossterm::Result<()> {
         if event::poll(Duration::from_millis(50))? {
-            let evnt = event::read()?;
-            match evnt {
-                Event::Key(key) => match key.code {
+            if let Event::Key(key) = event::read()? {
+                match key.code {
                     KeyCode::Esc => self.quit(),
                     KeyCode::Backspace => self.line.backspace(),
                     KeyCode::Tab => self.reset(),
@@ -157,8 +156,7 @@ impl TypingTest {
                         }
                     }
                     _ => {}
-                },
-                _ => {}
+                }
             }
         }
         Ok(())
