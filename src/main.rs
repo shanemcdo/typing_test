@@ -52,6 +52,7 @@ impl std::fmt::Display for TestMode {
 struct TypingTest {
     running: bool,
     started: bool,
+    show_final_score: bool,
     stdout: io::Stdout,
     terminal_size: (u16, u16),
     previous_line: Line,
@@ -68,6 +69,7 @@ impl TypingTest {
         Self {
             running: true,
             started: false,
+            show_final_score: true,
             stdout: io::stdout(),
             terminal_size,
             previous_line: Line::empty(),
@@ -143,12 +145,11 @@ impl TypingTest {
             let evnt = event::read()?;
             match evnt {
                 Event::Resize(w, h) => {
+                    // TODO: either do something with this or remove terminal_size field
                     self.terminal_size = (w, h);
                 }
                 Event::Key(key) => match key.code {
-                    KeyCode::Esc => {
-                        self.running = false;
-                    }
+                    KeyCode::Esc => self.quit(),
                     KeyCode::Backspace => self.line.backspace(),
                     KeyCode::Tab => self.reset(),
                     KeyCode::Char(ch) => {
@@ -168,6 +169,11 @@ impl TypingTest {
             }
         }
         Ok(())
+    }
+
+    fn quit(&mut self) {
+        self.running = false;
+        self.show_final_score = false;
     }
 
     fn reset(&mut self) {
@@ -202,11 +208,13 @@ impl TypingTest {
         }
         self.clear()?;
         terminal::disable_raw_mode()?;
-        if let Some(instant) = self.instant {
-            let elapsed = instant.elapsed().as_secs_f32();
-            let wc = self.word_count();
-            println!("You typed {} words {} seconds", wc, elapsed);
-            println!("Thats {} wpm", wc as f32 / (elapsed / 60f32));
+        if self.show_final_score {
+            if let Some(instant) = self.instant {
+                let elapsed = instant.elapsed().as_secs_f32();
+                let wc = self.word_count();
+                println!("You typed {} words {} seconds", wc, elapsed);
+                println!("Thats {} wpm", wc as f32 / (elapsed / 60f32));
+            }
         }
         Ok(())
     }
