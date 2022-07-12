@@ -1,3 +1,5 @@
+//! Contains struct for keeping track of lines of user input and expected input
+//! as well as generating new lines
 use crossterm::{
     cursor, queue,
     style::{Color, PrintStyledContent, Stylize},

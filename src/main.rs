@@ -1,3 +1,4 @@
+//! Main logic of a typing test application
 mod line;
 
 use crossterm::{
@@ -13,6 +14,7 @@ use std::time::Duration;
 use std::time::Instant;
 use structopt::StructOpt;
 
+/// Used by structopt for parsing command-line arguments
 #[derive(Debug, StructOpt)]
 #[structopt(
     name = "typing_test",
@@ -221,6 +223,7 @@ impl TypingTest {
     }
 }
 
+/// Driver code that runs the application
 fn main() -> crossterm::Result<()> {
     let args = Args::from_args();
     TypingTest::new(args).run()
