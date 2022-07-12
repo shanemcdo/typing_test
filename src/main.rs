@@ -18,7 +18,6 @@ use structopt::StructOpt;
 #[derive(Debug, StructOpt)]
 #[structopt(
     name = "typing_test",
-    usage = "typing_test [flags]",
     about = r#"A program to test your typing speed
   Controls:
     Esc - Exit test
