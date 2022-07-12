@@ -23,7 +23,7 @@ fn next_line() -> String {
         .take(10)
         .map(|x| x.to_string())
         .reduce(|a, b| format!("{} {}", a, b))
-        .unwrap_or("".to_string())
+        .unwrap_or_default()
 }
 
 #[derive(Clone, Debug)]
