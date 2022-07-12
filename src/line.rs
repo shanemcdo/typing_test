@@ -9,16 +9,22 @@ const UNCOMPLETED: Color = gray(100);
 const ERROR: Color = Color::Rgb { r: 230, g: 0, b: 0 };
 const LINE_LEN: usize = 10;
 
+/// ALL of the words possible
+/// taken from <https://github.com/monkeytypegame/monkeytype/blob/master/frontend/static/languages/english.json>
 const WORDS: &[&str] = include!("words.txt");
 
+/// Return a color where the r, g, and b values are set to x
+/// Effectively a grayscale color
 const fn gray(x: u8) -> Color {
     Color::Rgb { r: x, g: x, b: x }
 }
 
+/// Get a random word from the list of words
 fn next_word() -> &'static str {
     WORDS[rand::random::<usize>() % WORDS.len()]
 }
 
+/// Get a line comprised of {LINE_LEN} random words
 fn next_line() -> String {
     std::iter::repeat_with(next_word)
         .take(LINE_LEN)
@@ -27,6 +33,7 @@ fn next_line() -> String {
         .unwrap_or_default()
 }
 
+/// A struct representing expected input and actual input
 #[derive(Clone, Debug)]
 pub struct Line {
     buffer: String,
@@ -49,6 +56,7 @@ impl Line {
         }
     }
 
+    /// Create an empty line that has no expected input
     pub fn empty() -> Self {
         Self {
             expected: String::new(),
@@ -56,6 +64,7 @@ impl Line {
         }
     }
 
+    /// Calculate the number of correctly completed words
     pub fn word_count(&self) -> u32 {
         let buffer: Vec<char> = self.buffer.chars().chain([' ']).collect();
         let expected: Vec<char> = self.expected.chars().collect();
@@ -81,6 +90,7 @@ impl Line {
         count
     }
 
+    /// remove one character if it exists
     pub fn backspace(&mut self) {
         if self.index > 0 {
             self.buffer.pop();
@@ -94,6 +104,7 @@ impl Line {
         self.index += 1;
     }
 
+    /// draw the line to provided stdout
     pub fn draw(&self, stdout: &mut io::Stdout) -> crossterm::Result<()> {
         let buffer: Vec<char> = self.buffer.chars().collect();
         let expected: Vec<char> = self.expected.chars().collect();
@@ -119,6 +130,7 @@ impl Line {
         queue!(stdout, cursor::MoveToNextLine(1))
     }
 
+    /// return true if all of the expected input has been completed
     pub fn done(&self) -> bool {
         self.index >= self.expected.len()
     }
