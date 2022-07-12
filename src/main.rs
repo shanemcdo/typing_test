@@ -39,7 +39,9 @@ struct Args {
 
 /// Struct that indicates when to stop the typing test
 enum TestMode {
+    /// Stop the test after a certain number of correct words typed
     WordCount(u32),
+    /// Stop the test after a certain number of seconds elapsed
     TimeLimit(u64),
 }
 
