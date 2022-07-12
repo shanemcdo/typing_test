@@ -35,6 +35,7 @@ struct Args {
     time: Option<u64>,
 }
 
+/// Struct that indicates when to stop the typing test
 enum TestMode {
     WordCount(u32),
     TimeLimit(u64),
@@ -49,6 +50,7 @@ impl std::fmt::Display for TestMode {
     }
 }
 
+/// holds info about current typing test
 struct TypingTest {
     running: bool,
     started: bool,
@@ -82,10 +84,12 @@ impl TypingTest {
         }
     }
 
+    /// calculate word count
     fn word_count(&self) -> u32 {
         self._word_count + self.line.word_count()
     }
 
+    /// Draw line containing words completed, time passed, wpm, and test mode
     fn draw_score(&mut self) -> crossterm::Result<()> {
         let time = self
             .instant
@@ -111,6 +115,7 @@ impl TypingTest {
         )
     }
 
+    /// Redraw the entire screen
     fn redraw(&mut self) -> crossterm::Result<()> {
         self.clear()?;
         self.draw_score()?;
@@ -122,12 +127,14 @@ impl TypingTest {
         self.stdout.flush()
     }
 
+    /// Move cursor to the next line and get next needed lines
     fn get_next_line(&mut self) {
         self._word_count += self.line.word_count();
         std::mem::swap(&mut self.line, &mut self.next_line);
         self.previous_line = std::mem::take(&mut self.next_line);
     }
 
+    /// clear the screen
     fn clear(&mut self) -> crossterm::Result<()> {
         queue!(
             self.stdout,
@@ -162,11 +169,13 @@ impl TypingTest {
         Ok(())
     }
 
+    /// Quit the test early
     fn quit(&mut self) {
         self.running = false;
         self.show_final_score = false;
     }
 
+    /// Restart the test
     fn reset(&mut self) {
         self.started = false;
         self.previous_line = Line::empty();
@@ -176,6 +185,7 @@ impl TypingTest {
         self.instant = None;
     }
 
+    /// Start the test application
     fn run(&mut self) -> crossterm::Result<()> {
         terminal::enable_raw_mode()?;
         self.redraw()?;
