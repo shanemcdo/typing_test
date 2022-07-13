@@ -121,7 +121,7 @@ impl Line {
                 } else {
                     ERROR
                 };
-                if buffer[i] == ' ' {
+                if buffer[i] == ' ' && color == ERROR {
                     buffer[i].on(color)
                 } else {
                     buffer[i].with(color)
