@@ -9,8 +9,8 @@ use crossterm::{
     style::{Print, Stylize},
     terminal,
 };
-use quote::random_quote;
 use line::Line;
+use quote::random_quote;
 use std::io::{self, prelude::*};
 use std::time::Duration;
 use std::time::Instant;
@@ -30,11 +30,11 @@ use structopt::StructOpt;
 )]
 struct Args {
     /// The number of words to type before a test ends
-    #[structopt(short, long, name="WORDS")]
+    #[structopt(short, long, name = "WORDS")]
     number: Option<u32>,
 
     /// How long the test should run in seconds
-    #[structopt(short, long, name="SECONDS")]
+    #[structopt(short, long, name = "SECONDS")]
     time: Option<u64>,
 
     /// Whether or not the test should run in Quote Mode
@@ -42,7 +42,7 @@ struct Args {
     quote: bool,
 
     /// A custom quote to use
-    #[structopt(short, long, name="QUOTE")]
+    #[structopt(short, long, name = "QUOTE")]
     custom_quote: Option<String>,
 }
 
@@ -250,11 +250,12 @@ fn main() -> crossterm::Result<()> {
     if args.custom_quote.is_some() {
         args.quote = true;
     }
-    if args.time.is_some() && args.number.is_some() ||
-        args.time.is_some() && args.quote ||
-        args.number.is_some() && args.quote {
-            println!("Invalid combination of flags. Please do not pass conflicting flags.");
-            return Ok(());
+    if args.time.is_some() && args.number.is_some()
+        || args.time.is_some() && args.quote
+        || args.number.is_some() && args.quote
+    {
+        println!("Invalid combination of flags. Please do not pass conflicting flags.");
+        return Ok(());
     }
     TypingTest::new(args).run()
 }
