@@ -40,7 +40,7 @@ fn next_line() -> String {
 pub struct Line {
     buffer: String,
     expected: String,
-    pub index: usize,
+    index: usize,
 }
 
 impl Default for Line {
@@ -56,6 +56,11 @@ impl Line {
             expected: next_line(),
             index: 0,
         }
+    }
+
+    /// Get the x position for moving the cursor
+    pub fn get_x_pos(&self) -> usize {
+        self.index
     }
 
     /// Create an empty line that has no expected input

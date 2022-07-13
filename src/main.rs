@@ -125,7 +125,7 @@ impl TypingTest {
         self.previous_line.draw(&mut self.stdout)?;
         self.line.draw(&mut self.stdout)?;
         self.next_line.draw(&mut self.stdout)?;
-        let x = self.line.index as u16;
+        let x = self.line.get_x_pos() as u16;
         queue!(self.stdout, cursor::MoveTo(x, 2))?;
         self.stdout.flush()
     }
