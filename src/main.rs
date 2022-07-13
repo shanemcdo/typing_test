@@ -1,5 +1,6 @@
 //! Main logic of a typing test application
 mod line;
+mod quote;
 
 use crossterm::{
     cursor,
@@ -8,6 +9,7 @@ use crossterm::{
     style::{Print, Stylize},
     terminal,
 };
+use quote::random_quote;
 use line::Line;
 use std::io::{self, prelude::*};
 use std::time::Duration;
@@ -28,12 +30,20 @@ use structopt::StructOpt;
 )]
 struct Args {
     /// The number of words to type before a test ends
-    #[structopt(short, long)]
+    #[structopt(short, long, name="WORDS")]
     number: Option<u32>,
 
     /// How long the test should run in seconds
-    #[structopt(short, long)]
+    #[structopt(short, long, name="SECONDS")]
     time: Option<u64>,
+
+    /// Whether or not the test should run in Quote Mode
+    #[structopt(short, long)]
+    quote: bool,
+
+    /// A custom quote to use
+    #[structopt(short, long, name="QUOTE")]
+    custom_quote: Option<String>,
 }
 
 /// Struct that indicates when to stop the typing test
@@ -42,6 +52,8 @@ enum TestMode {
     WordCount(u32),
     /// Stop the test after a certain number of seconds elapsed
     TimeLimit(u64),
+    /// Stop the test after finishing the quote
+    QuoteMode(String),
 }
 
 impl std::fmt::Display for TestMode {
@@ -49,6 +61,7 @@ impl std::fmt::Display for TestMode {
         match self {
             TestMode::WordCount(wc) => write!(formatter, "{} words", wc),
             TestMode::TimeLimit(seconds) => write!(formatter, "{} seconds", seconds),
+            TestMode::QuoteMode(_) => write!(formatter, "quote"),
         }
     }
 }
@@ -79,6 +92,8 @@ impl TypingTest {
             next_line: Line::new(),
             test_mode: if let Some(seconds) = args.time {
                 TestMode::TimeLimit(seconds)
+            } else if args.quote {
+                TestMode::QuoteMode(args.custom_quote.unwrap_or_else(random_quote))
             } else {
                 TestMode::WordCount(args.number.unwrap_or(30))
             },
@@ -208,6 +223,11 @@ impl TypingTest {
                         }
                     }
                 }
+                TestMode::QuoteMode(_) => {
+                    if self.line.done() && self.next_line.done() {
+                        break;
+                    }
+                }
             }
         }
         self.clear()?;
@@ -226,6 +246,13 @@ impl TypingTest {
 
 /// Driver code that runs the application
 fn main() -> crossterm::Result<()> {
-    let args = Args::from_args();
+    let mut args = Args::from_args();
+    if args.custom_quote.is_some() {
+        args.quote = true;
+    }
+    if args.time.is_some() && args.number.is_some() ||
+        args.time.is_some() && args.quote ||
+        args.number.is_some() && args.quote {
+    }
     TypingTest::new(args).run()
 }
