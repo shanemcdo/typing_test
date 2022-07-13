@@ -253,6 +253,9 @@ fn main() -> crossterm::Result<()> {
     if args.time.is_some() && args.number.is_some() ||
         args.time.is_some() && args.quote ||
         args.number.is_some() && args.quote {
+            println!("Invalid combination of flags. Please do not pass conflicting flags.");
+            Ok(())
+    } else {
+        TypingTest::new(args).run()
     }
-    TypingTest::new(args).run()
 }
