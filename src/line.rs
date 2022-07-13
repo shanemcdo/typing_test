@@ -84,7 +84,7 @@ impl Line {
     }
 
     /// Get the x position for moving the cursor
-    pub fn get_x_pos(&self) -> usize {
+    pub fn index(&self) -> usize {
         self.index
     }
 

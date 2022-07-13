@@ -9,4 +9,5 @@ edition = "2021"
 structopt = "0.3.25"
 crossterm = "0.22.1"
 rand = "0.8.5"
-reqwest = "0.11.11"
+reqwest = { version = "0.11.11", features = [ "blocking", "json" ] }
+serde = { version = "1.0.139", features = [ "derive" ] }
