@@ -8,4 +8,5 @@ edition = "2021"
 [dependencies]
 structopt = "0.3.25"
 crossterm = "0.22.1"
-rand = "*"
+rand = "0.8.5"
+requests = "0.0.30"
