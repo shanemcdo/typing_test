@@ -82,21 +82,27 @@ struct TypingTest {
 
 impl TypingTest {
     fn new(args: Args) -> Self {
+        let mut test_mode = if let Some(seconds) = args.time {
+            TestMode::TimeLimit(seconds)
+        } else if args.quote {
+            TestMode::QuoteMode(args.custom_quote.unwrap_or_else(random_quote))
+        } else {
+            TestMode::WordCount(args.number.unwrap_or(30))
+        };
+        let (line, next_line) = if let TestMode::QuoteMode(string) = &mut test_mode {
+            (Line::from_quote(string), Line::from_quote(string))
+        } else {
+            (Line::new(), Line::new())
+        };
         Self {
             running: true,
             started: false,
             show_final_score: true,
             stdout: io::stdout(),
             previous_line: Line::empty(),
-            line: Line::new(),
-            next_line: Line::new(),
-            test_mode: if let Some(seconds) = args.time {
-                TestMode::TimeLimit(seconds)
-            } else if args.quote {
-                TestMode::QuoteMode(args.custom_quote.unwrap_or_else(random_quote))
-            } else {
-                TestMode::WordCount(args.number.unwrap_or(30))
-            },
+            line,
+            next_line,
+            test_mode,
             _word_count: 0,
             instant: None,
         }
@@ -149,7 +155,12 @@ impl TypingTest {
     fn get_next_line(&mut self) {
         self._word_count += self.line.word_count();
         std::mem::swap(&mut self.line, &mut self.next_line);
-        self.previous_line = std::mem::take(&mut self.next_line);
+        let new = if let TestMode::QuoteMode(string) = &mut self.test_mode {
+            Line::from_quote(string)
+        } else {
+            Line::new()
+        };
+        self.previous_line = std::mem::replace(&mut self.next_line, new);
     }
 
     /// clear the screen
