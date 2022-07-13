@@ -24,12 +24,11 @@ const fn gray(x: u8) -> Color {
 // TODO write as function
 /// Join an iter of words into a String separated by spaces
 macro_rules! join {
-    ($x:expr) => (
-        ($x)
-            .map(|x| x.to_string())
+    ($x:expr) => {
+        ($x).map(|x| x.to_string())
             .reduce(|a, b| format!("{} {}", a, b))
             .unwrap_or_default()
-    )
+    };
 }
 
 /// Get a random word from the list of words
@@ -65,20 +64,15 @@ impl Line {
         }
     }
 
+    /// Create a new Line using {LINE_LEN} words of a string
     pub fn from_quote(string: &mut String) -> Self {
         let mut it = string.split(' ');
         let res = Line {
-            buffer: String::new(),
             expected: join!((&mut it).take(LINE_LEN)),
-            index: 0
+            ..Self::new()
         };
         *string = join!(it);
         res
-    }
-
-    /// Get the x position for moving the cursor
-    pub fn get_x_pos(&self) -> usize {
-        self.index
     }
 
     /// Create an empty line that has no expected input
@@ -87,6 +81,11 @@ impl Line {
             expected: String::new(),
             ..Self::new()
         }
+    }
+
+    /// Get the x position for moving the cursor
+    pub fn get_x_pos(&self) -> usize {
+        self.index
     }
 
     /// Calculate the number of correctly completed words
