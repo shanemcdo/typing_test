@@ -53,8 +53,8 @@ enum TestMode {
     /// Stop the test after a certain number of seconds elapsed
     TimeLimit(u64),
     /// Stop the test after finishing the quote
-    QuoteMode{
-        remaining: String, 
+    QuoteMode {
+        remaining: String,
         starting: String,
         custom: bool,
     },
@@ -65,7 +65,7 @@ impl std::fmt::Display for TestMode {
         match self {
             TestMode::WordCount(wc) => write!(formatter, "{} words", wc),
             TestMode::TimeLimit(seconds) => write!(formatter, "{} seconds", seconds),
-            TestMode::QuoteMode{..} => write!(formatter, "quote"),
+            TestMode::QuoteMode { .. } => write!(formatter, "quote"),
         }
     }
 }
@@ -91,7 +91,7 @@ impl TypingTest {
         } else if args.quote {
             let custom = args.custom_quote.is_some();
             let s = args.custom_quote.unwrap_or_else(random_quote);
-            TestMode::QuoteMode{
+            TestMode::QuoteMode {
                 remaining: s.clone(),
                 starting: s,
                 custom,
@@ -99,7 +99,7 @@ impl TypingTest {
         } else {
             TestMode::WordCount(args.number.unwrap_or(30))
         };
-        let (line, next_line) = if let TestMode::QuoteMode{ remaining, .. } = &mut test_mode {
+        let (line, next_line) = if let TestMode::QuoteMode { remaining, .. } = &mut test_mode {
             (Line::from_quote(remaining), Line::from_quote(remaining))
         } else {
             (Line::new(), Line::new())
@@ -165,7 +165,7 @@ impl TypingTest {
     fn get_next_line(&mut self) {
         self._word_count += self.line.word_count();
         std::mem::swap(&mut self.line, &mut self.next_line);
-        let new = if let TestMode::QuoteMode{remaining, ..} = &mut self.test_mode {
+        let new = if let TestMode::QuoteMode { remaining, .. } = &mut self.test_mode {
             Line::from_quote(remaining)
         } else {
             Line::new()
@@ -220,7 +220,12 @@ impl TypingTest {
         self.previous_line = Line::empty();
         self._word_count = 0;
         self.instant = None;
-        if let TestMode::QuoteMode { remaining, starting, custom } = &mut self.test_mode {
+        if let TestMode::QuoteMode {
+            remaining,
+            starting,
+            custom,
+        } = &mut self.test_mode
+        {
             if *custom {
                 *remaining = starting.clone();
             } else {
@@ -255,7 +260,7 @@ impl TypingTest {
                         }
                     }
                 }
-                TestMode::QuoteMode{ .. } => {
+                TestMode::QuoteMode { .. } => {
                     if self.line.done() && self.next_line.done() {
                         break;
                     }
