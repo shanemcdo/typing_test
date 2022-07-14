@@ -21,14 +21,14 @@ const fn gray(x: u8) -> Color {
     Color::Rgb { r: x, g: x, b: x }
 }
 
-// TODO write as function
-/// Join an iter of words into a String separated by spaces
-macro_rules! join {
-    ($x:expr) => {
-        ($x).map(|x| x.to_string())
-            .reduce(|a, b| format!("{} {}", a, b))
-            .unwrap_or_default()
-    };
+fn join<T>(x: T) -> String
+where
+    T: Iterator,
+    T::Item: ToString,
+{
+    x.map(|x| x.to_string())
+        .reduce(|a, b| format!("{} {}", a, b))
+        .unwrap_or_default()
 }
 
 /// Get a random word from the list of words
@@ -38,7 +38,7 @@ fn next_word() -> &'static str {
 
 /// Get a line comprised of {LINE_LEN} random words
 fn next_line() -> String {
-    join!(std::iter::repeat_with(next_word).take(LINE_LEN))
+    join(std::iter::repeat_with(next_word).take(LINE_LEN))
 }
 
 /// A struct representing expected input and actual input
@@ -68,10 +68,10 @@ impl Line {
     pub fn from_quote(string: &mut String) -> Self {
         let mut it = string.split(' ');
         let res = Line {
-            expected: join!((&mut it).take(LINE_LEN)),
+            expected: join((&mut it).take(LINE_LEN)),
             ..Self::new()
         };
-        *string = join!(it);
+        *string = join(it);
         res
     }
 
