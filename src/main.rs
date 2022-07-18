@@ -135,7 +135,7 @@ impl TypingTest {
         queue!(
             self.stdout,
             Print(format!(
-                "{}: {}  {}: {}s  {}: {}  {}: {}",
+                "{}: {}  {}: {:6.2}s  {}: {:6.2}  {}: {}",
                 "Words".red().bold(),
                 wc,
                 "Time".green().bold(),
