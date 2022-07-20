@@ -115,9 +115,7 @@ impl Line {
 
     /// remove one character if it exists
     pub fn backspace(&mut self) {
-        if self.index() > 0 {
-            self.buffer.pop();
-        }
+        self.buffer.pop();
     }
 
     /// Returns true if a word has been finshed
