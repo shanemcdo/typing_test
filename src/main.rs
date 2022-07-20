@@ -55,8 +55,7 @@ enum TestMode {
     /// Stop the test after finishing the quote
     QuoteMode {
         remaining: String,
-        starting: String,
-        custom: bool,
+        custom: Option<String>,
     },
 }
 
@@ -88,12 +87,9 @@ impl TypingTest {
         let mut test_mode = if let Some(seconds) = args.time {
             TestMode::TimeLimit(seconds)
         } else if args.quote {
-            let custom = args.custom_quote.is_some();
-            let s = args.custom_quote.unwrap_or_else(random_quote);
             TestMode::QuoteMode {
-                remaining: s.clone(),
-                starting: s,
-                custom,
+                custom: args.custom_quote.clone(),
+                remaining: args.custom_quote.unwrap_or_else(random_quote),
             }
         } else {
             TestMode::WordCount(args.number.unwrap_or(30))
@@ -218,15 +214,13 @@ impl TypingTest {
         self.instant = None;
         if let TestMode::QuoteMode {
             remaining,
-            starting,
             custom,
         } = &mut self.test_mode
         {
-            if *custom {
-                *remaining = starting.clone();
+            if let Some(s) = custom {
+                *remaining = s.clone();
             } else {
-                *starting = random_quote();
-                *remaining = starting.clone();
+                *remaining = random_quote();
             }
             self.line = Line::from_quote(remaining);
             self.next_line = Line::from_quote(remaining);
