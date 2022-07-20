@@ -212,11 +212,7 @@ impl TypingTest {
         self.previous_line = Line::empty();
         self._word_count = 0;
         self.instant = None;
-        if let TestMode::QuoteMode {
-            remaining,
-            custom,
-        } = &mut self.test_mode
-        {
+        if let TestMode::QuoteMode { remaining, custom } = &mut self.test_mode {
             if let Some(s) = custom {
                 *remaining = s.clone();
             } else {
