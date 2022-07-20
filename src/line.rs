@@ -230,7 +230,13 @@ mod tests {
 
     #[test]
     fn line_backspace_test() {
-        todo!();
+        Line::empty().backspace(); // shouldn't panic
+        let mut line = Line::new();
+        line.buffer = "abc".to_string();
+        for _ in 0..3 {
+            line.backspace();
+        }
+        assert_eq!(line.buffer.len(), 0);
     }
 
     #[test]
