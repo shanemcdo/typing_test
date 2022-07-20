@@ -46,7 +46,6 @@ fn next_line() -> String {
 pub struct Line {
     buffer: String,
     expected: String,
-    index: usize,
 }
 
 impl Default for Line {
@@ -60,7 +59,6 @@ impl Line {
         Self {
             buffer: String::new(),
             expected: next_line(),
-            index: 0,
         }
     }
 
@@ -86,7 +84,7 @@ impl Line {
 
     /// Get the x position for moving the cursor
     pub fn index(&self) -> usize {
-        self.index
+        self.buffer.len()
     }
 
     /// Calculate the number of correctly completed words
@@ -117,16 +115,14 @@ impl Line {
 
     /// remove one character if it exists
     pub fn backspace(&mut self) {
-        if self.index > 0 {
+        if self.index() > 0 {
             self.buffer.pop();
-            self.index -= 1;
         }
     }
 
     /// Returns true if a word has been finshed
     pub fn add_char(&mut self, ch: char) {
         self.buffer.push(ch);
-        self.index += 1;
     }
 
     /// draw the line to provided stdout
@@ -157,6 +153,51 @@ impl Line {
 
     /// return true if all of the expected input has been completed
     pub fn done(&self) -> bool {
-        self.index >= self.expected.len()
+        self.index() >= self.expected.len()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn line_new_test() {
+        todo!();
+    }
+
+    #[test]
+    fn line_from_quote_test() {
+        todo!();
+    }
+
+    #[test]
+    fn line_empty_test() {
+        todo!();
+    }
+
+    #[test]
+    fn line_index_test() {
+        todo!();
+    }
+
+    #[test]
+    fn line_word_count_test() {
+        todo!();
+    }
+
+    #[test]
+    fn line_backspace_test() {
+        todo!();
+    }
+
+    #[test]
+    fn line_add_char_test() {
+        todo!();
+    }
+
+    #[test]
+    fn line_done_test() {
+        todo!();
     }
 }
