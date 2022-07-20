@@ -65,6 +65,7 @@ impl Line {
     }
 
     /// Create a new Line using {LINE_LEN} words of a string
+    /// Leaves remaining words in string
     pub fn from_quote(string: &mut String) -> Self {
         let mut it = string.split(' ');
         let res = Line {
