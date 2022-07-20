@@ -159,6 +159,13 @@ impl Line {
 mod tests {
     use super::*;
 
+    fn join_test() {
+        assert_eq!(
+            join(1..=5),
+            "1 2 3 4 5"
+        );
+    }
+
     #[test]
     fn line_new_test() {
         for _ in 0..100 {
@@ -170,7 +177,16 @@ mod tests {
 
     #[test]
     fn line_from_quote_test() {
-        todo!();
+        let mut s = "This is a quote".to_string();
+        let s_clone = s.clone();
+        let line = Line::from_quote(&mut s);
+        assert_eq!(s, "");
+        assert_eq!(line.expected, s_clone);
+        s = "1 2 3 4 5 6 7 8 9 10 11 12".to_string();
+        let s_clone = s.clone();
+        let line = Line::from_quote(&mut s);
+        assert_eq!(s, "11 12");
+        assert_eq!(line.expected, s_clone);
     }
 
     #[test]
