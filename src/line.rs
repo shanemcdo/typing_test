@@ -241,11 +241,28 @@ mod tests {
 
     #[test]
     fn line_add_char_test() {
-        todo!();
+        let mut line = Line::new();
+        line.add_char('1');
+        line.add_char('2');
+        line.add_char('3');
+        assert_eq!(line.buffer.len(), 3);
     }
 
     #[test]
     fn line_done_test() {
-        todo!();
+        for (b, e, done) in [
+            ("a b d", "a b c d", false),
+            ("a b c", "a b c d", false),
+            ("This is a quote!", "This is a quote!", true),
+            ("This is not a quote!", "This is a quote!", true),
+            ("This is not a quote!", "This is a quote!", true),
+            ("123", "1234", false),
+        ] {
+            let line = Line {
+                buffer: b.into(),
+                expected: e.into(),
+            };
+            assert_eq!(line.done(), done);
+        }
     }
 }
