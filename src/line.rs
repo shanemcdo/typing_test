@@ -100,6 +100,8 @@ impl Line {
                 }
                 break;
             }
+            // TODO consider making '-' another option here
+            // this would count "self-concious" as two words rather than one
             if expected[i] == ' ' {
                 if word_correct {
                     count += 1;
