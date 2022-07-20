@@ -196,7 +196,9 @@ mod tests {
 
     #[test]
     fn line_empty_test() {
-        todo!();
+        let line = Line::empty();
+        assert_eq!(line.buffer, "");
+        assert_eq!(line.expected, "");
     }
 
     #[test]
