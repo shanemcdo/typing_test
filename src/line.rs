@@ -203,7 +203,13 @@ mod tests {
 
     #[test]
     fn line_index_test() {
-        todo!();
+        let mut line = Line::new();
+        line.buffer = "abc 12".to_string();
+        assert_eq!(line.index(), 6);
+        line.buffer = "123".to_string();
+        assert_eq!(line.index(), 3);
+        line.buffer = "This one is pretty long".to_string();
+        assert_eq!(line.index(), 23);
     }
 
     #[test]
