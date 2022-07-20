@@ -214,7 +214,18 @@ mod tests {
 
     #[test]
     fn line_word_count_test() {
-        todo!();
+        for (b, e, count) in [
+            ("a b d", "a b c d", 2),
+            ("a b c", "a b c d", 3),
+            ("This is a quote!", "This is a quote!", 4),
+            ("This is not a quote!", "This is a quote!", 2),
+        ] {
+            let line = Line {
+                buffer: b.into(),
+                expected: e.into(),
+            };
+            assert_eq!(line.word_count(), count);
+        }
     }
 
     #[test]
