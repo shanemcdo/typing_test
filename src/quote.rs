@@ -15,3 +15,15 @@ pub fn random_quote() -> String {
         .expect("Couldn't decode text")
         .content
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn random_quote_test() {
+        for _ in 0..3 {
+            assert_ne!(random_quote(), "");
+        }
+    }
+}
