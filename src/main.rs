@@ -46,7 +46,7 @@ struct Args {
     custom_quote: Option<String>,
 }
 
-/// Struct that indicates when to stop the typing test
+/// Enum that indicates when to stop the typing test
 enum TestMode {
     /// Stop the test after a certain number of correct words typed
     WordCount(u32),
