@@ -119,10 +119,10 @@ impl TypingTest {
 
     /// Draw line containing words completed, time passed, wpm, and test mode
     fn draw_score(&mut self) -> crossterm::Result<()> {
-        let time = self
-            .instant
-            .map(|x| x.elapsed().as_secs_f32())
-            .unwrap_or(0f32);
+        let time = match self.instant {
+            Some(x) => x.elapsed().as_secs_f32(),
+            None => 0f32,
+        };
         let wc = self.word_count();
         let wpm = wc as f32 / (time / 60f32);
         let mode = &self.test_mode;
