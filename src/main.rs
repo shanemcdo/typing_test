@@ -73,7 +73,6 @@ impl std::fmt::Display for TestMode {
 /// holds info about current typing test
 struct TypingTest {
     running: bool,
-    started: bool,
     show_final_score: bool,
     stdout: io::Stdout,
     previous_line: Line,
@@ -106,7 +105,6 @@ impl TypingTest {
         };
         Self {
             running: true,
-            started: false,
             show_final_score: true,
             stdout: io::stdout(),
             previous_line: Line::empty(),
@@ -191,8 +189,7 @@ impl TypingTest {
                     KeyCode::Backspace => self.line.backspace(),
                     KeyCode::Tab => self.reset(),
                     KeyCode::Char(ch) => {
-                        if !self.started {
-                            self.started = true;
+                        if self.instant.is_none() { // TODO is if let better here
                             self.instant = Some(Instant::now());
                         }
                         if ch == ' ' && self.line.done() {
@@ -216,7 +213,6 @@ impl TypingTest {
 
     /// Restart the test
     fn reset(&mut self) {
-        self.started = false;
         self.previous_line = Line::empty();
         self._word_count = 0;
         self.instant = None;
