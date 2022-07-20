@@ -165,6 +165,10 @@ mod tests {
             join(1..=5),
             "1 2 3 4 5"
         );
+        assert_eq!(
+            join(["Here", "are", "some", "words"].iter()),
+            "Here are some words"
+        );
     }
 
     #[test]
@@ -183,11 +187,11 @@ mod tests {
         let line = Line::from_quote(&mut s);
         assert_eq!(s, "");
         assert_eq!(line.expected, s_clone);
-        s = "1 2 3 4 5 6 7 8 9 10 11 12".to_string();
-        let s_clone = s.clone();
+        let offset = 3;
+        s = join(1..=(LINE_LEN + offset));
         let line = Line::from_quote(&mut s);
-        assert_eq!(s, "11 12");
-        assert_eq!(line.expected, "1 2 3 4 5 6 7 8 9 10");
+        assert_eq!(s, join((LINE_LEN+1)..=(LINE_LEN + offset)));
+        assert_eq!(line.expected, join(1..=LINE_LEN));
     }
 
     #[test]
