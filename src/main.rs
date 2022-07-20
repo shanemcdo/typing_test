@@ -185,7 +185,7 @@ impl TypingTest {
                     KeyCode::Backspace => self.line.backspace(),
                     KeyCode::Tab => self.reset(),
                     KeyCode::Char(ch) => {
-                        if self.instant.is_none() { // TODO is if let better here
+                        if self.instant.is_none() {
                             self.instant = Some(Instant::now());
                         }
                         if ch == ' ' && self.line.done() {
