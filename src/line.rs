@@ -161,7 +161,11 @@ mod tests {
 
     #[test]
     fn line_new_test() {
-        todo!();
+        for _ in 0..100 {
+            let line = Line::new();
+            assert_eq!(line.buffer, "");
+            assert_ne!(line.expected, "");
+        }
     }
 
     #[test]
