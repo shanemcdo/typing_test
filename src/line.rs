@@ -55,6 +55,12 @@ impl Default for Line {
 }
 
 impl Line {
+    /// Empty line
+    pub const EMPTY: Self = Self {
+        buffer: String::new(),
+        expected: String::new(),
+    };
+
     pub fn new() -> Self {
         Self {
             buffer: String::new(),
@@ -72,14 +78,6 @@ impl Line {
         };
         *string = join(it);
         res
-    }
-
-    /// Create an empty line that has no expected input
-    pub fn empty() -> Self {
-        Self {
-            expected: String::new(),
-            ..Self::new()
-        }
     }
 
     /// Get the x position for moving the cursor

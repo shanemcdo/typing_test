@@ -103,7 +103,7 @@ impl TypingTest {
             running: true,
             show_final_score: true,
             stdout: io::stdout(),
-            previous_line: Line::empty(),
+            previous_line: Line::EMPTY,
             line,
             next_line,
             test_mode,
@@ -209,7 +209,7 @@ impl TypingTest {
 
     /// Restart the test
     fn reset(&mut self) {
-        self.previous_line = Line::empty();
+        self.previous_line = Line::EMPTY;
         self._word_count = 0;
         self.instant = None;
         if let TestMode::QuoteMode { remaining, custom } = &mut self.test_mode {
