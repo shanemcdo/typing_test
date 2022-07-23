@@ -196,7 +196,7 @@ mod tests {
 
     #[test]
     fn line_empty_test() {
-        let line = Line::empty();
+        let line = Line::EMPTY;
         assert_eq!(line.buffer, "");
         assert_eq!(line.expected, "");
     }
@@ -230,7 +230,8 @@ mod tests {
 
     #[test]
     fn line_backspace_test() {
-        Line::empty().backspace(); // shouldn't panic
+        let mut line = Line::EMPTY;
+        line.backspace(); // shouldn't panic
         let mut line = Line::new();
         line.buffer = "abc".to_string();
         for _ in 0..3 {
