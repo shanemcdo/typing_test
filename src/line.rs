@@ -161,10 +161,7 @@ mod tests {
 
     #[test]
     fn join_test() {
-        assert_eq!(
-            join(1..=5),
-            "1 2 3 4 5"
-        );
+        assert_eq!(join(1..=5), "1 2 3 4 5");
         assert_eq!(
             join(["Here", "are", "some", "words"].iter()),
             "Here are some words"
@@ -190,7 +187,7 @@ mod tests {
         let offset = 3;
         s = join(1..=(LINE_LEN + offset));
         let line = Line::from_quote(&mut s);
-        assert_eq!(s, join((LINE_LEN+1)..=(LINE_LEN + offset)));
+        assert_eq!(s, join((LINE_LEN + 1)..=(LINE_LEN + offset)));
         assert_eq!(line.expected, join(1..=LINE_LEN));
     }
 
