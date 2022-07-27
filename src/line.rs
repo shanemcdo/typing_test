@@ -23,10 +23,11 @@ const fn gray(x: u8) -> Color {
 
 fn join<T>(x: T) -> String
 where
-    T: Iterator,
+    T: IntoIterator,
     T::Item: ToString,
 {
-    x.map(|x| x.to_string())
+    x.into_iter()
+        .map(|x| x.to_string())
         .reduce(|a, b| format!("{} {}", a, b))
         .unwrap_or_default()
 }
