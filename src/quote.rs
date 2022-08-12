@@ -9,10 +9,18 @@ struct Response {
 
 /// Use reqwest to get quotes from <https://api.quotable.io/random>
 pub fn random_quote() -> String {
-    reqwest::blocking::get("https://api.quotable.io/random")
-        .expect("Couldn't get url")
+    let err_prefix = "Could not get quote because";
+    let url = "https://api.quotable.io/random";
+    reqwest::blocking::get(url)
+        .unwrap_or_else(|_| {
+            eprintln!("{err_prefix} the url \"{url}\" cannot be fetched.");
+            std::process::exit(1);
+        })
         .json::<Response>()
-        .expect("Couldn't decode text")
+        .unwrap_or_else(|_| {
+            eprintln!("{err_prefix} the url \"{url}\" returned an unexpected result.");
+            std::process::exit(1);
+        })
         .content
 }
 
